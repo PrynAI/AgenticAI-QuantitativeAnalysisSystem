@@ -2,3 +2,6 @@
 
 /AAFA-oldproject
 /docs-old
+
+# secret files
+.env
