@@ -1,0 +1,51 @@
+
+# run Python code inside a kernel
+ipykernel
+
+# Python framework for building multi‑agent AI systems
+crewai
+
+# tool extension package for CrewAI
+crewai-tools
+
+# It loads environment variables from a .env file into the Python application
+python-dotenv
+
+# Python wrapper around Yahoo Finance that lets us fetch historical stock prices, financials, dividends, and market data
+yfinance
+
+# Python SDK for Firecrawl, a modern web‑scraping + crawling service designed specifically for LLMs and agent systems.
+firecrawl-py
+
+# official Python SDK for interacting with Azure Blob Storage, Microsoft’s object storage service.
+azure-storage-blob
+
+# talk to databases in Python
+sqlalchemy
+
+# precompiled PostgreSQL driver for Python
+psycopg2-binary
+
+# data validation and settings management library built on Python type hints.
+pydantic
+
+# FastAPI is a high‑performance web framework for building APIs in Python
+fastapi
+
+# Engine that runs your FastAPI app
+uvicorn
+
+# lets the application emit telemetry data (traces, metrics, logs) without caring how or where that data is exported.
+opentelemetry-api
+
+# It records traces, metrics, and logs and sends them somewhere useful.
+opentelemetry-sdk
+
+# It takes the telemetry we generate with opentelemetry-api + opentelemetry-sdk and automatically ships it to Azure
+azure-monitor-opentelemetry
+
+# Python framework for building data apps with almost no frontend code
+streamlit
+
+# standard HTTP client for Python .the simplest, most reliable way to talk to the web in Python
+requests
