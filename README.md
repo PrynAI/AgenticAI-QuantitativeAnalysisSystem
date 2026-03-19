@@ -18,6 +18,7 @@ $files = @(
   "src\agents\tools\__init__.py"
   "src\agents\tools\search.py"
   "src\agents\tools\scraper.py"
+  "src\agents\tools\financial.py"
   "src\api\__init__.py"
   "src\api\main.py"
   "src\api\models.py"
