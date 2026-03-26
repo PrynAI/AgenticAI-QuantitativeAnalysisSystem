@@ -1,59 +1,80 @@
-'''
-Build the Endpoint (src/api/routes.py)
-This is the "Controller." It receives the request, calls the AI agents 
-(just like your CLI script did), and returns the JSON result.
-
-'''
-
 """
-API Routes.
-Handles the incoming HTTP requests and triggers the AI Crew.
+API routes for submitting and polling durable analysis jobs.
 """
-from fastapi import APIRouter, HTTPException
-from src.api.models import AnalysisRequest, AnalysisResponse
-from src.agents.crew import run_financial_crew
-from src.shared.storage import StorageService
-from src.shared.database import DatabaseService
 
-# Create a router to organize our endpoints
+from fastapi import APIRouter, HTTPException, status
+from starlette.concurrency import run_in_threadpool
+
+from src.api.models import AnalysisAcceptedResponse, AnalysisRequest, AnalysisStatusResponse
+from src.shared.database import AnalysisJob, DatabaseService
+
 router = APIRouter()
 
-@router.post("/analyze", response_model=AnalysisResponse)
+
+def create_job(ticker: str) -> AnalysisJob:
+    """Create a queued analysis job using the shared database service."""
+    db = DatabaseService()
+    return db.create_analysis_job(ticker)
+
+
+def fetch_job(job_id: str) -> AnalysisJob | None:
+    """Fetch a durable analysis job by id."""
+    db = DatabaseService()
+    return db.get_analysis_job(job_id)
+
+
+def build_status_response(job: AnalysisJob) -> AnalysisStatusResponse:
+    """Serialize ORM job state into the API response model."""
+    return AnalysisStatusResponse(
+        job_id=job.id,
+        ticker=job.ticker,
+        status=job.status,
+        report_content=job.report_content,
+        report_url=job.report_url,
+        error_message=job.error_message,
+        worker_id=job.worker_id,
+        created_at=job.created_at,
+        started_at=job.started_at,
+        completed_at=job.completed_at,
+    )
+
+
+@router.post(
+    "/analyze",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=AnalysisAcceptedResponse,
+)
 async def analyze_stock(request: AnalysisRequest):
     """
-    Triggers the Financial Analysis Crew for a given ticker.
-    1. Runs the Agents.
-    2. Uploads report to Azure Blob.
-    3. Saves record to Azure Postgres.
+    Queue a stock analysis job and return immediately with the durable job id.
     """
     ticker = request.ticker.upper()
-    
+
     try:
-        # 1. Run the AI Crew
-        print(f"🚀 API Request received for: {ticker}")
-        result_object = run_financial_crew(ticker)
-        
-        # Convert CrewOutput to String (Crucial fix from before)
-        report_text = str(result_object)
-
-        # 2. Upload to Blob Storage
-        filename = f"investment_report_{ticker}.md"
-        storage = StorageService()
-        # Note: CrewAI saved the file locally; we just push it.
-        blob_url = storage.upload_file(filename, filename)
-
-        # 3. Save to Database
-        db = DatabaseService()
-        db.save_report(ticker=ticker, content=report_text)
-
-        return AnalysisResponse(
-            status="success",
-            ticker=ticker,
-            report_content=report_text,
-            report_url=blob_url,
-            message="Analysis complete and saved to cloud."
+        job = await run_in_threadpool(create_job, ticker)
+        return AnalysisAcceptedResponse(
+            status=job.status,
+            job_id=job.id,
+            ticker=job.ticker,
+            message="Analysis job accepted. Poll the job status endpoint for progress.",
         )
-
     except Exception as e:
-        print(f"❌ API Error: {e}")
+        print(f"❌ API Error while queuing job: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/analyze/{job_id}", response_model=AnalysisStatusResponse)
+async def get_analysis_status(job_id: str):
+    """
+    Fetch the current status and outputs for a queued analysis job.
+    """
+    try:
+        job = await run_in_threadpool(fetch_job, job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail=f"Analysis job '{job_id}' was not found.")
+        return build_status_response(job)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ API Error while fetching job '{job_id}': {e}")
         raise HTTPException(status_code=500, detail=str(e))

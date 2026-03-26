@@ -62,6 +62,10 @@ class Settings(BaseSettings):
         None, 
         description="Connection string for Azure Blob Storage."
     )
+    worker_poll_interval_seconds: int = Field(
+        5,
+        description="Polling interval for the background analysis worker."
+    )
 
     # Pydantic Config: Tells it to read from .env file
     model_config = SettingsConfigDict(

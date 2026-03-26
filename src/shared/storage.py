@@ -7,14 +7,20 @@ accessed permanently , even after the container shuts down.
 '''
 from azure.storage.blob import BlobServiceClient
 from src.shared.config import settings
-import os
 
 
 class StorageService:
     def __init__(self):
+        connection_string = settings.azure_blob_storage_connection_string
+        if not connection_string:
+            raise ValueError("AZURE_BLOB_STORAGE_CONNECTION_STRING is missing in configuration.")
+
         # Initialize the connection using string from .env
-        self.service_client = BlobServiceClient.from_connection_string(
-            settings.azure_blob_storage_connection_string)
+        try:
+            self.service_client = BlobServiceClient.from_connection_string(connection_string)
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize Azure Blob Storage client: {e}") from e
+
         self.container_name = "reports"
         # Ensure thay the container exists (like creating a folder)
         self._ensure_container_exists()
@@ -28,7 +34,9 @@ class StorageService:
             if not container_client.exists():
                 container_client.create_container()
         except Exception as e:
-          print(f"Warning checking container : {e}")
+            raise RuntimeError(
+                f"Failed to ensure Azure Blob container '{self.container_name}' exists: {e}"
+            ) from e
 
     
     def upload_file(self,file_path: str, destination_name : str) -> str:
@@ -49,5 +57,9 @@ class StorageService:
                 blob_client.upload_blob(data,overwrite=True)
             return f"https://{self.service_client.account_name}.blob.core.windows.net/{self.container_name}/{destination_name}"
 # https://[your_account].blob.core.windows.net/[container]/[filename]
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Report file not found for upload: {file_path}") from e
         except Exception as e:
-            return f"Error uploading to Azure : {str(e)}"
+            raise RuntimeError(
+                f"Failed to upload '{file_path}' to Azure Blob Storage: {e}"
+            ) from e

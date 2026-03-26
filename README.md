@@ -18,30 +18,37 @@
 
 ## How to run application
 
-### UI
+### Production-style UI flow
 
-Run below commands in two windows(cmd) with venv enabled 
+Run the application in **three terminals** with your virtual environment enabled:
 
-- For Fast API :
+1. Start the FastAPI server
 
-'''
+```bash
 uv run uvicorn src.api.main:app --reload
+```
 
-'''
+2. Start the background worker
 
-- For FrontEnd Steamlit
+```bash
+uv run python -m src.workers.analysis_worker
+```
 
-'''
-uv run streamlit run src\frontend\app.py
+3. Start the Streamlit frontend
 
-'''
+```bash
+uv run streamlit run src/frontend/app.py
+```
 
-### with out UI , produce output in terminal 
+The frontend now queues an analysis job and polls the backend for status updates while the worker processes the request asynchronously.
 
-'''
+### Direct CLI run
+
+If you want to run the analysis pipeline directly without the API/UI job flow:
+
+```bash
 uv run main.py
-
-''' 
+```
 
 ### Architecture
 
