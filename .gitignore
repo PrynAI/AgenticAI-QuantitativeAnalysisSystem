@@ -1,7 +1,14 @@
-# old files
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
-/AAFA-oldproject
-/docs-old
 
 # secret files
 .env
+
+# Reports
+*.md

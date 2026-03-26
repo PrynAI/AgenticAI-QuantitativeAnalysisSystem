@@ -1,8 +1,50 @@
+## Final Product 
+
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+
+### Check meta data logs in postgres
+
+![alt text](image-3.png)
+
+
+### Validate reports in azure blob store
+
+![alt text](image-4.png)
+
+
+## How to run application
+
+### UI
+Run below commands in two windows(cmd) with venv enabled 
+
+- For Fast API :
+'''
+uv run uvicorn src.api.main:app --reload
+'''
+
+- For FrontEnd Steamlit
+
+'''
+uv run streamlit run src\frontend\app.py
+'''
+
+### with out UI , produce output in terminal 
+
+'''
+uv run main.py
+''' 
+
+### Architecture
+
+- ![QuantAnalysisArchiecture.jpg](QuantAnalysisArchiecture.jpg)
+
 ### Create project Structure
 
 ### Create folders
 '''
-mkdir src\agents\tools src\api src\shared infra frontend   .github\workflows
+mkdir src\agents\tools src\api src\shared src\frontend   .github\workflows
 '''
 
 ### Create files
@@ -27,8 +69,7 @@ $files = @(
   "src\shared\config.py"
   "src\shared\database.py"
   "src\shared\storage.py"
-  "frontend\app.py"
-  "frontend\requirements.txt"
+  "src\frontend\app.py"
   ".env.example"
   "Dockerfile"
 )
@@ -36,4 +77,11 @@ $files = @(
 New-Item $files -ItemType File -Force
 '''
 
+- Setup azure blob storage account with anonymous access enabled to access blobs from container
+
+- Setup Azure PostgresSql flexible server services resource 
+
+- Setup OpenAI models with OpenAI and choose resoning model
+
+- Get Firecrawl API key from Firecrawl 
 

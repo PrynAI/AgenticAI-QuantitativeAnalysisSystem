@@ -29,6 +29,8 @@ from pydantic import BaseModel, Field
 # Provides a simple interface to fetch financial market data from Yahoo Finance.
 import yfinance as yf
 
+from crewai.tools import BaseTool
+
 
 
 
