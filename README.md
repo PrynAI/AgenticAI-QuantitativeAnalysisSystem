@@ -45,7 +45,7 @@ The system uses a clear separation of concerns:
 - Azure Blob Storage stores the final generated report
 - Streamlit provides a simple analyst-facing interface for job submission and result review
 
-This architecture is intentionally more realistic than a single blocking request/response AI demo. It addresses long-running inference workloads, cloud persistence, worker liveness, recoverability, and operational boundaries between synchronous user interaction and asynchronous AI execution.
+This architecture addresses long-running inference workloads, cloud persistence, worker liveness, recoverability, and operational boundaries between synchronous user interaction and asynchronous AI execution.
 
 ## What The Platform Does
 
@@ -61,7 +61,7 @@ For a given stock ticker such as `MSFT`, `NVDA`, or `TSLA`, the system:
 
 ## Why This Project Matters
 
-This repository is not just about stock analysis. It demonstrates several engineering patterns that are directly relevant to AI platform and applied AI roles.
+This repository demonstrates several engineering patterns that are directly relevant to AI platform and applied AI roles.
 
 - **Agent orchestration**: decomposing analysis into specialist roles instead of using one generic model call
 - **Production-oriented API design**: returning `202 Accepted` plus a durable job id instead of holding open a long HTTP request
@@ -169,11 +169,11 @@ The system models job state in PostgreSQL rather than relying on in-memory task 
 
 ### 3. Failure Modes Are Considered
 
-The worker heartbeats itself, running jobs are lease-based, and stale work can be re-queued. This is a materially stronger design than a happy-path-only async wrapper.
+The worker heartbeats itself, running jobs are lease-based, and stale work can be re-queued.
 
 ### 4. Cloud Persistence Is Part Of The Product Contract
 
-Generated reports are stored as artifacts in Azure Blob Storage, while metadata and job state live in PostgreSQL. This separation mirrors how many real AI platforms handle generated outputs versus operational data.
+Generated reports are stored as artifacts in Azure Blob Storage, while metadata and job state live in PostgreSQL.
 
 ### 5. Configuration Drives Runtime Behavior
 
@@ -218,7 +218,7 @@ Copy `.env.example` to `.env` and populate the values:
 
 ```env
 OPENAI_API_KEY=""
-OPENAI_MODEL_NAME="gpt-4o"
+OPENAI_MODEL_NAME=""
 FIRECRAWL_API_KEY=""
 AZURE_POSTGRES_CONNECTION_STRING=""
 AZURE_BLOB_STORAGE_CONNECTION_STRING=""
@@ -230,7 +230,7 @@ WORKER_ACTIVE_WITHIN_SECONDS=60
 
 ## Running The System
 
-### Production-Style Flow
+### Flow
 
 Run the application in three terminals.
 
