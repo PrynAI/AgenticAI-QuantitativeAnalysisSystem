@@ -359,7 +359,7 @@ main.py
 
 ## What This Project Demonstrates
 
-From a hiring perspective, this project demonstrates practical capability in:
+This project demonstrates practical capability in:
 
 - designing agentic AI systems beyond toy prompts
 - building service boundaries around long-running LLM workflows
