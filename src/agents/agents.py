@@ -14,6 +14,7 @@ from typing import Tuple
 from crewai import Agent
 from src.agents.tools.financial import FundamentalAnalysisTool, CompareStocksTool
 from src.agents.tools.scraper import SentimentSearchTool
+from src.shared.config import settings
 
 
 def create_agents()->Tuple[Agent,Agent]:
@@ -37,6 +38,7 @@ def create_agents()->Tuple[Agent,Agent]:
             "You judge companies strictly by their balance sheets, P/E ratios, "
             "earnings growth (EPS), and volatility (Beta). "
             "Your reports are concise, number-heavy, and brutally honest.",
+            llm=settings.openai_model_name,
             verbose=True,
             memory=True,
             tools=[FundamentalAnalysisTool(),
@@ -58,6 +60,7 @@ def create_agents()->Tuple[Agent,Agent]:
                     "behind the stock. You combine the Quant's numbers with your news findings "
                     "to give a final 'Buy', 'Sell', or 'Hold' recommendation."
                 ),
+                llm=settings.openai_model_name,
                 verbose=True,
                 memory=True,
                 tools=[SentimentSearchTool()]

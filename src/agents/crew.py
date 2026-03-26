@@ -45,8 +45,7 @@ def run_financial_crew(ticker: str) -> str:
         tasks=tasks,
         process=Process.sequential,
         verbose=True,  # Logs every step to the console (great for debugging)
-        memory=True,   # Enables agents to remember past interactions,
-        tracing=True   # Enables LangSmith tracing for the entire crew
+        memory=True,   # Enables agents to remember past interactions
     )
     
     # 4. Start the Job

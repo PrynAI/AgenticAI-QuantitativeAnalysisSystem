@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, status
 from starlette.concurrency import run_in_threadpool
 
 from src.api.models import AnalysisAcceptedResponse, AnalysisRequest, AnalysisStatusResponse
+from src.shared.config import settings
 from src.shared.database import AnalysisJob, DatabaseService
 
 router = APIRouter()
@@ -21,6 +22,12 @@ def fetch_job(job_id: str) -> AnalysisJob | None:
     """Fetch a durable analysis job by id."""
     db = DatabaseService()
     return db.get_analysis_job(job_id)
+
+
+def has_active_workers() -> bool:
+    """Return True when at least one worker heartbeat is recent enough."""
+    db = DatabaseService()
+    return db.has_active_workers(settings.worker_active_within_seconds)
 
 
 def build_status_response(job: AnalysisJob) -> AnalysisStatusResponse:
@@ -51,6 +58,15 @@ async def analyze_stock(request: AnalysisRequest):
     ticker = request.ticker.upper()
 
     try:
+        if not await run_in_threadpool(has_active_workers):
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=(
+                    "No active analysis worker is available. Start the worker process before "
+                    "submitting jobs."
+                ),
+            )
+
         job = await run_in_threadpool(create_job, ticker)
         return AnalysisAcceptedResponse(
             status=job.status,
@@ -58,6 +74,8 @@ async def analyze_stock(request: AnalysisRequest):
             ticker=job.ticker,
             message="Analysis job accepted. Poll the job status endpoint for progress.",
         )
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ API Error while queuing job: {e}")
         raise HTTPException(status_code=500, detail=str(e))

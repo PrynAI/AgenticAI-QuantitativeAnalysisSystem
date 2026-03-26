@@ -13,7 +13,7 @@ Usage:
 from functools import lru_cache
 from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, field_validator
 
 class Settings(BaseSettings):
     """
@@ -23,8 +23,6 @@ class Settings(BaseSettings):
         openai_api_key (str): Key for accessing OpenAI models.
         openai_model_name (str): Model identifier (e.g., 'gpt-4o').
         firecrawl_api_key (str): Key for the Firecrawl web scraping service.
-        langchain_api_key (Optional[str]): Key for LangSmith observability.
-        langchain_tracing_v2 (bool): Flag to enable/disable tracing.
     """
 
     # --- AI Configuration (The Brain) ---
@@ -43,16 +41,6 @@ class Settings(BaseSettings):
         description="API Key for Firecrawl scraping service."
     )
 
-    # --- Observability Configuration (The Microscope) ---
-    langchain_tracing_v2: bool = Field(
-        False, 
-        description="Enable LangSmith tracing."
-    )
-    langchain_api_key: Optional[str] = Field(
-        None, 
-        description="LangSmith API Key (required if tracing is True)."
-    )
-
     # --- Azure Infrastructure (The Body) ---
     azure_postgres_connection_string: Optional[str] = Field(
         None, 
@@ -66,6 +54,18 @@ class Settings(BaseSettings):
         5,
         description="Polling interval for the background analysis worker."
     )
+    job_heartbeat_interval_seconds: int = Field(
+        15,
+        description="How often the worker refreshes job and worker heartbeats while processing."
+    )
+    job_stale_after_seconds: int = Field(
+        300,
+        description="How long a running job can go without a heartbeat before it is re-queued."
+    )
+    worker_active_within_seconds: int = Field(
+        60,
+        description="How recently a worker heartbeat must be seen for the API to accept new jobs."
+    )
 
     # Pydantic Config: Tells it to read from .env file
     model_config = SettingsConfigDict(
@@ -73,6 +73,16 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore"  # Ignore extra keys in .env
     )
+
+    @field_validator("openai_model_name", mode="before")
+    @classmethod
+    def normalize_openai_model_name(cls, value: str | None) -> str:
+        """Treat blank env values as the default model name."""
+        if value is None:
+            return "gpt-4o"
+        if isinstance(value, str) and not value.strip():
+            return "gpt-4o"
+        return value
 
 @lru_cache()
 def get_settings() -> Settings:
