@@ -1,7 +1,9 @@
 ## Final Product 
 
 ![alt text](image.png)
+=======================================
 ![alt text](image-1.png)
+========================================
 ![alt text](image-2.png)
 
 ### Check meta data logs in postgres
@@ -17,23 +19,28 @@
 ## How to run application
 
 ### UI
+
 Run below commands in two windows(cmd) with venv enabled 
 
 - For Fast API :
+
 '''
 uv run uvicorn src.api.main:app --reload
+
 '''
 
 - For FrontEnd Steamlit
 
 '''
 uv run streamlit run src\frontend\app.py
+
 '''
 
 ### with out UI , produce output in terminal 
 
 '''
 uv run main.py
+
 ''' 
 
 ### Architecture
@@ -43,14 +50,18 @@ uv run main.py
 ### Create project Structure
 
 ### Create folders
+
 '''
 mkdir src\agents\tools src\api src\shared src\frontend   .github\workflows
+
 '''
 
 ### Create files
+
 - User powershell instead of command due to limiation by design can only create one file at a time but not multiple in one command
 
 - Powershell command
+
 '''
 $files = @(
   "src\agents\__init__.py"
@@ -75,6 +86,7 @@ $files = @(
 )
 
 New-Item $files -ItemType File -Force
+
 '''
 
 - Setup azure blob storage account with anonymous access enabled to access blobs from container

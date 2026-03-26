@@ -13,6 +13,8 @@ Dependencies:
 -yfinance:For accessing market data
 -crewai_tools: For integration with agent framework
 """
+import json
+
 #Type - variable holds a class
 #Dict - dictionary with specific key and value types.
 #Any - disables type checking for that value
@@ -107,8 +109,11 @@ class FundamentalAnalysisTool(BaseTool):
                 "52 Week Low": info.get("fiftyTwoWeekLow", "N/A"),
                 "Analyst Recommendation": info.get("recommendationKey", "none")
             }
+        
         except Exception as e:
           return f"Error fetching fundamental data for '{ticker}': {str(e)}"
+        
+        return json.dumps(metrics, indent=2, default=str)
             
 class CompareStocksTool(BaseTool):
     """
