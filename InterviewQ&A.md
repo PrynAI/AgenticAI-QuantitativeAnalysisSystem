@@ -145,7 +145,7 @@ Use these framing patterns instead:
 [Back to Top](#table-of-contents)
 
 ### Q1. **Give me a 60-second overview of this project.**
-**Answer:** This project is a production-style multi-agent stock analysis platform. A user submits a ticker, the API creates a durable job in PostgreSQL, a background worker executes a two-agent CrewAI workflow, and the final investment memo is stored in Azure Blob Storage while job state and report metadata are tracked in PostgreSQL. The important point is that I designed it as an operational system, not just a single prompt behind an endpoint.
+**Answer:** This project is a production-style multi-agent stock analysis platform. A user submits a ticker, the API creates a durable job in PostgreSQL, a background worker executes a two-agent CrewAI workflow, and the final investment memo is stored in Azure Blob Storage while job state and report metadata are tracked in PostgreSQL.
 **Code reference:** `src/api/routes.py`, `src/workers/analysis_worker.py`
 
 
