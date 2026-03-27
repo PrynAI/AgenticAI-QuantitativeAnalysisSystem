@@ -31,7 +31,7 @@ class Settings(BaseSettings):
         description="OpenAI API Key for the LLM agents."
     )
     openai_model_name: str = Field(
-        "gpt-4o", 
+        ...,
         description="The OpenAI model to use for agents."
     )
 
@@ -76,13 +76,16 @@ class Settings(BaseSettings):
 
     @field_validator("openai_model_name", mode="before")
     @classmethod
-    def normalize_openai_model_name(cls, value: str | None) -> str:
-        """Treat blank env values as the default model name."""
+    def validate_openai_model_name(cls, value: str | None) -> str:
+        """Require OPENAI_MODEL_NAME to be explicitly set and non-empty."""
         if value is None:
-            return "gpt-4o"
-        if isinstance(value, str) and not value.strip():
-            return "gpt-4o"
-        return value
+            raise ValueError("OPENAI_MODEL_NAME must be set in configuration.")
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                raise ValueError("OPENAI_MODEL_NAME must not be blank.")
+            return value
+        raise ValueError("OPENAI_MODEL_NAME must be a string.")
 
 @lru_cache()
 def get_settings() -> Settings:
